@@ -5,7 +5,7 @@ admin.initializeApp();
 const db = admin.firestore().collection("Weather Data Cache");
 
 //Accept weather data request from client
-exports.requestData = functions.https.onCall(async (data, context) => {
+exports.requestData = functions.https.onCall(async (data) => {
   //Check firestore database for recent data from that city
   const cityData = await db.doc(data.cityCode).get();
   const now = Date.now();
@@ -14,7 +14,7 @@ exports.requestData = functions.https.onCall(async (data, context) => {
     return cityData.data();
   } else {
     //Request data from API
-    return fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${data.latitude}&lon=${data.longitude}&units=${data.units}&appid=826e7f95db9392bcb8f4179da8c00a4e`)
+    return fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${data.latitude}&lon=${data.longitude}&units=${data.units}&appid=${functions.config().openweather.key}`)
       .then(res => {
         if (res.ok) {
           return res.json()
