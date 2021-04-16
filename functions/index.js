@@ -4,29 +4,25 @@ const fetch = require("node-fetch");
 admin.initializeApp();
 const db = admin.firestore().collection("Weather Data Cache");
 
-//Accept weather data request from client
 exports.requestData = functions.https.onRequest(async (req, res) => {
-  //Check firestore database for recent data from that city
-  const cityData = await db.doc(req.body.data.cityCode).get();
+  const cityData = await db.doc(req.body.cityCode).get();
   const now = Date.now();
   if (cityData.exists && now - cityData.data().timestamp < 900000) {
-    //Send cached data to client
     res.send(cityData.data());
   } else {
-    //Request data from API
-    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.body.data.latitude}&lon=${req.body.data.longitude}&units=${req.body.data.units}&appid=${functions.config().openweather.key}`)
+    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.body.latitude}&lon=${req.body.longitude}&units=${req.body.units}&appid=${functions.config().openweather.key}`)
       .then(response => {
         if (response.ok) {
           response.json().then(newWeatherObj => {
             const newData = {
-              cityName: req.body.data.cityName,
-              latitude: req.body.data.latitude,
-              longitude: req.body.data.longitude,
-              units: req.body.data.units,
+              cityName: req.body.cityName,
+              latitude: req.body.latitude,
+              longitude: req.body.longitude,
+              units: req.body.units,
               timestamp: now,
               weatherObj: newWeatherObj
             };
-            db.doc(req.body.data.cityCode).set(newData);
+            db.doc(req.body.cityCode).set(newData);
             res.send(newData);
           })
         } else {
