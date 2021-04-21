@@ -10,7 +10,7 @@ exports.requestData = functions.https.onRequest(async (req, res) => {
   if (cityData.exists && now - cityData.data().timestamp < 900000) {
     res.send(cityData.data());
   } else {
-    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.body.latitude}&lon=${req.body.longitude}&units=${req.body.units}&appid=${functions.config().openweather.key}`)
+    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.body.latitude}&lon=${req.body.longitude}&units=metric&appid=${functions.config().openweather.key}`)
       .then(response => {
         if (response.ok) {
           response.json().then(newWeatherObj => {
@@ -18,7 +18,6 @@ exports.requestData = functions.https.onRequest(async (req, res) => {
               cityName: req.body.cityName,
               latitude: req.body.latitude,
               longitude: req.body.longitude,
-              units: req.body.units,
               timestamp: now,
               weatherObj: newWeatherObj
             };
